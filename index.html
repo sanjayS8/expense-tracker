@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker - Manage Your Finances</title>
+    <title>Expense Tracker Pro - Smart Analytics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,14 +13,14 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
             min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -30,63 +31,95 @@
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 700;
         }
 
         .header p {
-            font-size: 1em;
+            font-size: 1.1em;
             opacity: 0.9;
-            font-weight: 500;
         }
 
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1.3fr;
-            gap: 30px;
+        .tabs {
+            display: flex;
+            gap: 10px;
             margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            color: white;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #1e3c72;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .card {
             background: white;
-            border-radius: 15px;
+            border-radius: 16px;
             padding: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
         }
 
         .card h2 {
-            color: #333;
+            color: #1e3c72;
             margin-bottom: 20px;
-            font-size: 1.3em;
+            font-size: 1.4em;
             display: flex;
             align-items: center;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 15px;
+            gap: 10px;
         }
 
-        .card h2 span {
-            display: inline-block;
-            font-size: 1.5em;
-            margin-right: 10px;
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 15px;
         }
 
         label {
             display: block;
-            color: #555;
+            color: #333;
             font-weight: 600;
             margin-bottom: 8px;
             font-size: 0.95em;
-        }
-
-        label .hint {
-            font-size: 0.8em;
-            color: #999;
-            font-weight: 400;
         }
 
         input, select, textarea {
@@ -95,29 +128,24 @@
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 1em;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
             font-family: inherit;
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
         }
 
         textarea {
             resize: vertical;
-            min-height: 70px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            min-height: 60px;
+            grid-column: 1 / -1;
         }
 
         button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
             color: white;
             border: none;
             padding: 12px 30px;
@@ -125,17 +153,13 @@
             font-size: 1em;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s;
             width: 100%;
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
+            box-shadow: 0 8px 20px rgba(42, 82, 152, 0.3);
         }
 
         .btn-small {
@@ -145,136 +169,68 @@
             margin-right: 10px;
         }
 
-        .btn-delete {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
 
-        .stat-box {
+        .stat-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 12px;
             text-align: center;
         }
 
-        .stat-box .label {
-            font-size: 0.85em;
-            opacity: 0.9;
-            margin-bottom: 8px;
-            font-weight: 500;
+        .stat-card.danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
 
-        .stat-box .value {
+        .stat-card.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
             font-size: 2em;
             font-weight: bold;
         }
 
-        .today-summary {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .today-summary .label {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-
-        .today-summary .value {
-            font-size: 2.2em;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .monthly-breakdown {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-
-        .monthly-breakdown h3 {
-            color: #333;
-            font-size: 0.95em;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        .monthly-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 0.9em;
-        }
-
-        .monthly-item:last-child {
-            border-bottom: none;
-        }
-
-        .monthly-label {
-            color: #555;
-            font-weight: 500;
-        }
-
-        .monthly-value {
-            color: #667eea;
-            font-weight: bold;
-        }
-
         .filter-section {
-            margin-bottom: 20px;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
+            margin-bottom: 20px;
         }
 
         .filter-btn {
             padding: 8px 14px;
-            border: 2px solid #667eea;
+            border: 2px solid #2a5298;
             background: white;
-            color: #667eea;
+            color: #2a5298;
             border-radius: 20px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
-            width: auto;
             font-size: 0.9em;
         }
 
         .filter-btn:hover,
         .filter-btn.active {
-            background: #667eea;
+            background: #2a5298;
             color: white;
         }
 
         .expenses-list {
-            max-height: 650px;
+            max-height: 600px;
             overflow-y: auto;
-        }
-
-        .expenses-list::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .expenses-list::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .expenses-list::-webkit-scrollbar-thumb {
-            background: #667eea;
-            border-radius: 10px;
         }
 
         .expense-item {
@@ -294,37 +250,13 @@
             transform: translateX(5px);
         }
 
-        .expense-item.food {
-            border-left-color: #ff6b6b;
-        }
-
-        .expense-item.transport {
-            border-left-color: #4ecdc4;
-        }
-
-        .expense-item.entertainment {
-            border-left-color: #ffe66d;
-        }
-
-        .expense-item.utilities {
-            border-left-color: #95e1d3;
-        }
-
-        .expense-item.healthcare {
-            border-left-color: #f38181;
-        }
-
-        .expense-item.other {
-            border-left-color: #aa96da;
-        }
-
         .expense-details {
             flex: 1;
         }
 
         .expense-category {
             display: inline-block;
-            background: #667eea;
+            background: #2a5298;
             color: white;
             padding: 4px 12px;
             border-radius: 15px;
@@ -337,7 +269,6 @@
             color: #333;
             font-weight: 600;
             margin-bottom: 5px;
-            font-size: 0.95em;
         }
 
         .expense-date {
@@ -348,27 +279,67 @@
         .expense-amount {
             font-size: 1.4em;
             font-weight: bold;
-            color: #667eea;
+            color: #2a5298;
             margin: 0 20px;
             min-width: 100px;
             text-align: right;
         }
 
-        .expense-actions {
+        .month-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .month-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 15px;
             display: flex;
-            gap: 8px;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .btn-edit {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            padding: 6px 12px;
-            font-size: 0.85em;
+        .month-total {
+            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
         }
 
-        .btn-delete-item {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            padding: 6px 12px;
+        .category-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .category-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+
+        .category-emoji {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .category-name {
             font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .category-amount {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2a5298;
         }
 
         .empty-state {
@@ -377,8 +348,28 @@
             color: #999;
         }
 
-        .empty-state p {
-            font-size: 1.1em;
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .success-message {
@@ -390,244 +381,171 @@
             animation: slideIn 0.3s ease-in;
         }
 
-        .error-message {
-            background: #f44336;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            animation: slideIn 0.3s ease-in;
-        }
-
         @keyframes slideIn {
-            from {
-                transform: translateY(-10px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .header h1 {
-                font-size: 1.8em;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .expense-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .expense-actions {
-                width: 100%;
-                margin-top: 10px;
-            }
-
-            .btn-small {
-                flex: 1;
-            }
-
-            .expense-amount {
-                margin: 10px 0;
-                text-align: left;
-            }
-        }
-
-        .chart-container {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        canvas {
-            max-width: 100%;
-        }
-
-        .chart-legend {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            font-size: 0.85em;
-        }
-
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-            margin-right: 8px;
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>💰 Expense Tracker</h1>
-            <p>Manage your finances smartly</p>
+            <h1>💰 Expense Tracker Pro</h1>
+            <p>Smart Analytics for Your Finances</p>
         </div>
 
-        <div class="main-content">
-            <!-- Add Expense Form -->
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('add')">➕ Add Expense</button>
+            <button class="tab-btn" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('monthly')">📅 Monthly Analysis</button>
+            <button class="tab-btn" onclick="switchTab('expenses')">📋 All Expenses</button>
+        </div>
+
+        <!-- Tab 1: Add Expense -->
+        <div id="add" class="tab-content active">
             <div class="card">
-                <h2><span>➕</span> Add Expense</h2>
+                <h2>➕ Add New Expense</h2>
                 <div id="message"></div>
                 <form id="expenseForm">
-                    <div class="form-group">
-                        <label for="amount">Amount (₹) <span class="hint">Enter in rupees</span></label>
-                        <input type="number" id="amount" placeholder="e.g. 500" step="1" min="0" required>
-                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="amount">Amount (₹)</label>
+                            <input type="number" id="amount" placeholder="Enter amount" step="1" min="0" required>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="category">Category <span class="hint">Choose expense type</span></label>
-                        <select id="category" required>
-                            <option value="">-- Select Category --</option>
-                            <option value="food">🍔 Food & Dining</option>
-                            <option value="transport">🚗 Transport</option>
-                            <option value="entertainment">🎬 Entertainment</option>
-                            <option value="utilities">💡 Utilities</option>
-                            <option value="healthcare">🏥 Healthcare</option>
-                            <option value="other">📌 Other</option>
-                        </select>
-                    </div>
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <select id="category" required>
+                                <option value="">-- Select Category --</option>
+                                <option value="food">🍔 Food & Dining</option>
+                                <option value="groceries">🛒 Groceries</option>
+                                <option value="transport">🚗 Transport</option>
+                                <option value="fuel">⛽ Fuel</option>
+                                <option value="entertainment">🎬 Entertainment</option>
+                                <option value="shopping">🛍️ Shopping</option>
+                                <option value="utilities">💡 Utilities</option>
+                                <option value="internet">📡 Internet</option>
+                                <option value="healthcare">🏥 Healthcare</option>
+                                <option value="gym">💪 Gym/Fitness</option>
+                                <option value="education">📚 Education</option>
+                                <option value="travel">✈️ Travel</option>
+                                <option value="subscription">📱 Subscriptions</option>
+                                <option value="rent">🏠 Rent</option>
+                                <option value="other">📌 Other</option>
+                            </select>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="description">Description <span class="hint">Add details about expense</span></label>
-                        <textarea id="description" placeholder="e.g. Groceries from market..." required></textarea>
-                    </div>
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" id="date" required>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="date">Date <span class="hint">When was this expense</span></label>
-                        <input type="date" id="date" required>
-                    </div>
-
-                    <button type="submit">✓ Add Expense</button>
-                </form>
-            </div>
-
-            <!-- Statistics Dashboard -->
-            <div class="card">
-                <h2><span>📊</span> Statistics</h2>
-                
-                <div class="today-summary">
-                    <div class="label">Today's Expenses</div>
-                    <div class="value" id="todayAmount">₹0</div>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="label">Total Expenses</div>
-                        <div class="value" id="totalAmount">₹0</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="label">Total Items</div>
-                        <div class="value" id="totalItems">0</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="label">Average Expense</div>
-                        <div class="value" id="averageAmount">₹0</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="label">Highest Expense</div>
-                        <div class="value" id="maxAmount">₹0</div>
-                    </div>
-                </div>
-
-                <div class="monthly-breakdown">
-                    <h3>📅 This Month's Breakdown</h3>
-                    <div id="monthlyStats">
-                        <div class="monthly-item">
-                            <span class="monthly-label">No data yet</span>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" placeholder="Add details..." required></textarea>
                         </div>
                     </div>
-                </div>
+                    <button type="submit">✓ Save Expense</button>
+                </form>
+            </div>
+        </div>
 
+        <!-- Tab 2: Dashboard -->
+        <div id="dashboard" class="tab-content">
+            <div class="card">
+                <h2>📊 Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Today's Spending</div>
+                        <div class="stat-value" id="todayAmount">₹0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">This Month</div>
+                        <div class="stat-value" id="monthAmount">₹0</div>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-label">Total All Time</div>
+                        <div class="stat-value" id="totalAmount">₹0</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-label">Average per Day</div>
+                        <div class="stat-value" id="averageDaily">₹0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📈 Category Breakdown (This Month)</h2>
                 <div class="chart-container">
-                    <canvas id="expenseChart" width="200" height="200"></canvas>
-                    <div class="chart-legend" id="chartLegend"></div>
+                    <canvas id="monthChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📊 Monthly Trend</h2>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Expenses List -->
-        <div class="card">
-            <h2><span>📋</span> All Expenses</h2>
-
-            <div class="filter-section">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="food">🍔 Food</button>
-                <button class="filter-btn" data-filter="transport">🚗 Transport</button>
-                <button class="filter-btn" data-filter="entertainment">🎬 Entertainment</button>
-                <button class="filter-btn" data-filter="utilities">💡 Utilities</button>
-                <button class="filter-btn" data-filter="healthcare">🏥 Healthcare</button>
-                <button class="filter-btn" data-filter="other">📌 Other</button>
+        <!-- Tab 3: Monthly Analysis -->
+        <div id="monthly" class="tab-content">
+            <div class="card">
+                <h2>📅 Monthly Spending Analysis</h2>
+                <div id="monthlyAnalysis"></div>
             </div>
+        </div>
 
-            <div class="expenses-list" id="expensesList">
-                <div class="empty-state">
-                    <p>No expenses yet. Add one to get started! 🚀</p>
+        <!-- Tab 4: All Expenses -->
+        <div id="expenses" class="tab-content">
+            <div class="card">
+                <h2>📋 All Expenses</h2>
+                <div class="filter-section" id="filterButtons"></div>
+                <div class="expenses-list" id="expensesList">
+                    <div class="empty-state">No expenses yet</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const expenseForm = document.getElementById('expenseForm');
-        const expensesList = document.getElementById('expensesList');
-        const amountInput = document.getElementById('amount');
-        const categorySelect = document.getElementById('category');
-        const descriptionInput = document.getElementById('description');
-        const dateInput = document.getElementById('date');
-        const messageDiv = document.getElementById('message');
-
-        const colors = {
-            food: '#ff6b6b',
-            transport: '#4ecdc4',
-            entertainment: '#ffe66d',
-            utilities: '#95e1d3',
-            healthcare: '#f38181',
-            other: '#aa96da'
-        };
-
-        const categoryLabels = {
-            food: 'Food & Dining',
-            transport: 'Transport',
-            entertainment: 'Entertainment',
-            utilities: 'Utilities',
-            healthcare: 'Healthcare',
-            other: 'Other'
+        const categories = {
+            food: { name: 'Food & Dining', emoji: '🍔' },
+            groceries: { name: 'Groceries', emoji: '🛒' },
+            transport: { name: 'Transport', emoji: '🚗' },
+            fuel: { name: 'Fuel', emoji: '⛽' },
+            entertainment: { name: 'Entertainment', emoji: '🎬' },
+            shopping: { name: 'Shopping', emoji: '🛍️' },
+            utilities: { name: 'Utilities', emoji: '💡' },
+            internet: { name: 'Internet', emoji: '📡' },
+            healthcare: { name: 'Healthcare', emoji: '🏥' },
+            gym: { name: 'Gym/Fitness', emoji: '💪' },
+            education: { name: 'Education', emoji: '📚' },
+            travel: { name: 'Travel', emoji: '✈️' },
+            subscription: { name: 'Subscriptions', emoji: '📱' },
+            rent: { name: 'Rent', emoji: '🏠' },
+            other: { name: 'Other', emoji: '📌' }
         };
 
         let expenses = [];
         let currentFilter = 'all';
-        let editingId = null;
+        let monthChart, trendChart;
 
         function initDateInput() {
             const today = new Date().toISOString().split('T')[0];
-            dateInput.value = today;
+            document.getElementById('date').value = today;
         }
 
         function loadExpenses() {
             const saved = localStorage.getItem('expenses');
             if (saved) {
-                expenses = JSON.parse(saved);
+                try {
+                    expenses = JSON.parse(saved);
+                } catch (e) {
+                    expenses = [];
+                }
             }
         }
 
@@ -635,252 +553,202 @@
             localStorage.setItem('expenses', JSON.stringify(expenses));
         }
 
-        function showMessage(text, type = 'success') {
-            messageDiv.innerHTML = `<div class="${type}-message">${text}</div>`;
-            setTimeout(() => {
-                messageDiv.innerHTML = '';
-            }, 3000);
+        function showMessage(text) {
+            const msg = document.getElementById('message');
+            msg.innerHTML = `<div class="success-message">${text}</div>`;
+            setTimeout(() => { msg.innerHTML = ''; }, 3000);
         }
 
-        expenseForm.addEventListener('submit', (e) => {
+        document.getElementById('expenseForm').addEventListener('submit', (e) => {
             e.preventDefault();
-
-            const amount = parseInt(amountInput.value);
-            const category = categorySelect.value;
-            const description = descriptionInput.value;
-            const date = dateInput.value;
+            const amount = parseInt(document.getElementById('amount').value);
+            const category = document.getElementById('category').value;
+            const description = document.getElementById('description').value;
+            const date = document.getElementById('date').value;
 
             if (!amount || !category || !description || !date) {
-                showMessage('Please fill all fields ⚠️', 'error');
+                showMessage('Please fill all fields!');
                 return;
             }
 
-            if (editingId) {
-                const index = expenses.findIndex(e => e.id === editingId);
-                expenses[index] = { id: editingId, amount, category, description, date };
-                showMessage('Expense updated! ✏️');
-                editingId = null;
-                expenseForm.querySelector('button').textContent = '✓ Add Expense';
-            } else {
-                expenses.push({
-                    id: Date.now(),
-                    amount,
-                    category,
-                    description,
-                    date
-                });
-                showMessage('Expense added! ✅');
-            }
-
+            expenses.push({ id: Date.now(), amount, category, description, date });
             saveExpenses();
-            renderExpenses();
-            updateStats();
-            expenseForm.reset();
+            renderAll();
+            document.getElementById('expenseForm').reset();
             initDateInput();
+            showMessage('✅ Expense saved!');
         });
 
         function deleteExpense(id) {
-            if (confirm('Are you sure you want to delete this expense?')) {
+            if (confirm('Delete this expense?')) {
                 expenses = expenses.filter(e => e.id !== id);
                 saveExpenses();
-                renderExpenses();
-                updateStats();
-                showMessage('Expense deleted! 🗑️');
+                renderAll();
+                showMessage('✅ Deleted!');
             }
         }
 
-        function editExpense(id) {
-            const expense = expenses.find(e => e.id === id);
-            if (expense) {
-                amountInput.value = expense.amount;
-                categorySelect.value = expense.category;
-                descriptionInput.value = expense.description;
-                dateInput.value = expense.date;
-                editingId = id;
-                expenseForm.querySelector('button').textContent = '✓ Update Expense';
-                amountInput.focus();
-            }
-        }
-
-        function renderExpenses() {
-            const filtered = currentFilter === 'all' 
-                ? expenses 
-                : expenses.filter(e => e.category === currentFilter);
-
-            if (filtered.length === 0) {
-                expensesList.innerHTML = '<div class="empty-state"><p>No expenses found in this category 🔍</p></div>';
-                return;
-            }
-
-            const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            expensesList.innerHTML = sorted.map(expense => {
-                const dateObj = new Date(expense.date);
-                const dateStr = dateObj.toLocaleDateString('en-IN', { 
-                    year: 'numeric', 
-                    month: 'short', 
-                    day: 'numeric' 
-                });
-                
-                return `
-                    <div class="expense-item ${expense.category}">
-                        <div class="expense-details">
-                            <div class="expense-category">${getCategoryEmoji(expense.category)} ${categoryLabels[expense.category]}</div>
-                            <div class="expense-description">${expense.description}</div>
-                            <div class="expense-date">${dateStr}</div>
-                        </div>
-                        <div class="expense-amount">₹${expense.amount.toLocaleString('en-IN')}</div>
-                        <div class="expense-actions">
-                            <button class="btn-small btn-edit" onclick="editExpense(${expense.id})">Edit</button>
-                            <button class="btn-small btn-delete-item" onclick="deleteExpense(${expense.id})">Delete</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function getCategoryEmoji(category) {
-            const emojis = {
-                food: '🍔',
-                transport: '🚗',
-                entertainment: '🎬',
-                utilities: '💡',
-                healthcare: '🏥',
-                other: '📌'
-            };
-            return emojis[category] || '📌';
+        function renderAll() {
+            updateStats();
+            renderMonthlyAnalysis();
+            renderExpenses();
+            updateCharts();
+            renderFilterButtons();
         }
 
         function updateStats() {
-            const total = expenses.reduce((sum, e) => sum + e.amount, 0);
-            const average = expenses.length > 0 ? Math.round(total / expenses.length) : 0;
-            const max = expenses.length > 0 ? Math.max(...expenses.map(e => e.amount)) : 0;
-
-            // Today's expenses
             const today = new Date().toISOString().split('T')[0];
-            const todayExpenses = expenses.filter(e => e.date === today);
-            const todayTotal = todayExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-            document.getElementById('todayAmount').textContent = `₹${todayTotal.toLocaleString('en-IN')}`;
-            document.getElementById('totalAmount').textContent = `₹${total.toLocaleString('en-IN')}`;
-            document.getElementById('totalItems').textContent = expenses.length;
-            document.getElementById('averageAmount').textContent = `₹${average.toLocaleString('en-IN')}`;
-            document.getElementById('maxAmount').textContent = `₹${max.toLocaleString('en-IN')}`;
+            const todayExpenses = expenses.filter(e => e.date === today).reduce((sum, e) => sum + e.amount, 0);
+            const monthExpenses = expenses.filter(e => new Date(e.date) >= monthStart).reduce((sum, e) => sum + e.amount, 0);
+            const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+            
+            const daysWithExpenses = new Set(expenses.map(e => e.date)).size || 1;
+            const avgDaily = Math.round(totalExpenses / daysWithExpenses);
 
-            updateMonthlyStats();
-            drawChart();
+            document.getElementById('todayAmount').textContent = `₹${todayExpenses.toLocaleString()}`;
+            document.getElementById('monthAmount').textContent = `₹${monthExpenses.toLocaleString()}`;
+            document.getElementById('totalAmount').textContent = `₹${totalExpenses.toLocaleString()}`;
+            document.getElementById('averageDaily').textContent = `₹${avgDaily.toLocaleString()}`;
         }
 
-        function updateMonthlyStats() {
-            const currentDate = new Date();
-            const currentYear = currentDate.getFullYear();
-            const currentMonth = currentDate.getMonth();
-
-            const monthlyExpenses = expenses.filter(e => {
-                const eDate = new Date(e.date);
-                return eDate.getFullYear() === currentYear && eDate.getMonth() === currentMonth;
-            });
-
-            const categoryTotals = {};
-            monthlyExpenses.forEach(e => {
-                categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount;
-            });
-
-            const statsDiv = document.getElementById('monthlyStats');
-            if (Object.keys(categoryTotals).length === 0) {
-                statsDiv.innerHTML = '<div class="monthly-item"><span class="monthly-label">No expenses this month</span></div>';
-                return;
-            }
-
-            statsDiv.innerHTML = Object.entries(categoryTotals)
-                .map(([cat, amount]) => `
-                    <div class="monthly-item">
-                        <span class="monthly-label">${getCategoryEmoji(cat)} ${categoryLabels[cat]}</span>
-                        <span class="monthly-value">₹${amount.toLocaleString('en-IN')}</span>
-                    </div>
-                `)
-                .join('');
-        }
-
-        function drawChart() {
-            const canvas = document.getElementById('expenseChart');
-            const ctx = canvas.getContext('2d');
-            const categoryTotals = {};
-
+        function renderMonthlyAnalysis() {
+            const months = {};
             expenses.forEach(e => {
-                categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount;
+                const date = new Date(e.date);
+                const monthKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+                if (!months[monthKey]) months[monthKey] = {};
+                if (!months[monthKey][e.category]) months[monthKey][e.category] = 0;
+                months[monthKey][e.category] += e.amount;
             });
 
-            const categories = Object.keys(categoryTotals);
-            const data = categories.map(cat => categoryTotals[cat]);
-            const total = data.reduce((sum, val) => sum + val, 0);
+            const html = Object.entries(months)
+                .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+                .map(([month, cats]) => {
+                    const total = Object.values(cats).reduce((a, b) => a + b, 0);
+                    const breakdown = Object.entries(cats)
+                        .map(([cat, amount]) => `
+                            <div class="category-item">
+                                <div class="category-emoji">${categories[cat].emoji}</div>
+                                <div class="category-name">${categories[cat].name}</div>
+                                <div class="category-amount">₹${amount.toLocaleString()}</div>
+                            </div>
+                        `).join('');
+                    return `
+                        <div class="month-card">
+                            <div class="month-header">
+                                <span>${month}</span>
+                                <div class="month-total">₹${total.toLocaleString()}</div>
+                            </div>
+                            <div class="category-breakdown">${breakdown}</div>
+                        </div>
+                    `;
+                }).join('');
 
-            if (total === 0) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#ccc';
-                ctx.font = 'bold 16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('No data', canvas.width / 2, canvas.height / 2);
-                return;
+            document.getElementById('monthlyAnalysis').innerHTML = html || '<div class="empty-state">No expenses yet</div>';
+        }
+
+        function renderFilterButtons() {
+            const cats = ['all', ...Object.keys(categories)];
+            const html = cats.map(cat => {
+                const label = cat === 'all' ? 'All' : categories[cat].emoji + ' ' + categories[cat].name;
+                return `<button class="filter-btn ${cat === 'all' ? 'active' : ''}" onclick="filterExpenses('${cat}')">${label}</button>`;
+            }).join('');
+            document.getElementById('filterButtons').innerHTML = html;
+        }
+
+        function filterExpenses(cat) {
+            currentFilter = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderExpenses();
+        }
+
+        function renderExpenses() {
+            const filtered = currentFilter === 'all' ? expenses : expenses.filter(e => e.category === currentFilter);
+            const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const html = sorted.map(e => `
+                <div class="expense-item">
+                    <div class="expense-details">
+                        <div class="expense-category">${categories[e.category].emoji} ${categories[e.category].name}</div>
+                        <div class="expense-description">${e.description}</div>
+                        <div class="expense-date">${new Date(e.date).toLocaleDateString()}</div>
+                    </div>
+                    <div class="expense-amount">₹${e.amount.toLocaleString()}</div>
+                    <button class="btn-small" style="background: #2a5298;" onclick="deleteExpense(${e.id})">Delete</button>
+                </div>
+            `).join('');
+
+            document.getElementById('expensesList').innerHTML = html || '<div class="empty-state">No expenses found</div>';
+        }
+
+        function updateCharts() {
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            const monthExpenses = expenses.filter(e => new Date(e.date) >= monthStart);
+
+            const catData = {};
+            monthExpenses.forEach(e => {
+                catData[e.category] = (catData[e.category] || 0) + e.amount;
+            });
+
+            const ctx1 = document.getElementById('monthChart');
+            if (monthChart) monthChart.destroy();
+            if (Object.keys(catData).length > 0) {
+                monthChart = new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.entries(catData).map(([k]) => categories[k].name),
+                        datasets: [{
+                            data: Object.values(catData),
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
             }
 
-            drawPie(ctx, data, categories, canvas.width, canvas.height);
-            updateLegend(categories, categoryTotals, total);
-        }
-
-        function drawPie(ctx, data, labels, width, height) {
-            const centerX = width / 2;
-            const centerY = height / 2;
-            const radius = Math.min(width, height) / 2 - 10;
-            let currentAngle = -Math.PI / 2;
-
-            const total = data.reduce((sum, val) => sum + val, 0);
-
-            data.forEach((value, index) => {
-                const sliceAngle = (value / total) * 2 * Math.PI;
-
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
-                ctx.closePath();
-                ctx.fillStyle = Object.values(colors)[index % Object.values(colors).length];
-                ctx.fill();
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                currentAngle += sliceAngle;
+            const monthlyData = {};
+            expenses.forEach(e => {
+                const key = new Date(e.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                monthlyData[key] = (monthlyData[key] || 0) + e.amount;
             });
+
+            const ctx2 = document.getElementById('trendChart');
+            if (trendChart) trendChart.destroy();
+            if (Object.keys(monthlyData).length > 0) {
+                trendChart = new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(monthlyData),
+                        datasets: [{
+                            label: 'Monthly Spending',
+                            data: Object.values(monthlyData),
+                            borderColor: '#2a5298',
+                            backgroundColor: 'rgba(42, 82, 152, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
         }
 
-        function updateLegend(categories, totals, total) {
-            const legend = document.getElementById('chartLegend');
-            legend.innerHTML = categories.map(cat => {
-                const percentage = ((totals[cat] / total) * 100).toFixed(1);
-                const color = colors[cat];
-                return `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: ${color}"></div>
-                        <span>${categoryLabels[cat]} - ${percentage}%</span>
-                    </div>
-                `;
-            }).join('');
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
         }
-
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
-                renderExpenses();
-            });
-        });
 
         window.addEventListener('DOMContentLoaded', () => {
             initDateInput();
             loadExpenses();
-            renderExpenses();
-            updateStats();
+            renderAll();
         });
     </script>
 </body>
